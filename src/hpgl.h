@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-typedef enum HPGLKeyword
+typedef enum HPGLOpcode
 {
 	hpgl_AA, //Arc absolute [d,d,d,d?]
 	hpgl_AF, //Advance full page []
@@ -59,38 +59,37 @@ typedef enum HPGLKeyword
 	hpgl_SU, //User unit character size [d,d]
 	hpgl_WG, //Fill Wedge [d,d,d,d?]
 }
-HPGLKeyword;
+HPGLOpcode;
 
 typedef union HPGLArgument
 {
 	int n;
-	struct {short i;short f;} d;
+	float f;
 	char c;
 }
 HPGLArgument;
 
 typedef struct HPGLInstruction
 {
-	HPGLKeyword cmd;
+	HPGLOpcode cmd;
 	int argc;
 	HPGLArgument args[256];
 }
 HPGLInstruction;
 
-int untangleStr(HPGLArgument *li, char *buff, char delim, int maxlen);
+int HPGLParse(char *input, HPGLInstruction **prog);
 
-int parseHPGL(char *input, HPGLInstruction **pprog);
-
-int readTerminator(char *input); // no arg instructions
-int parse_nnno(char *input, HPGLInstruction *instr); //AA, AR, EW, WG : [n,n,n,n?]
-int parse_delimtext(char *input, HPGLInstruction *instr, char delim); //BL, LB : [ct]
-int parse_n(char *input, HPGLInstruction *instr); //CA, DV, CS, CT, LO, PM, PS, SP, PT, RO, SL : [n]
-int parse_no(char *input, HPGLInstruction *instr); //CI, ES, LT : [n,n?]
-int parse_oo(char *input, HPGLInstruction *instr); // CP, //[(n,n)?]
-int parse_nn(char *input, HPGLInstruction *instr); //DI, DR, DU, EA, ER, RA, RR, SI, SR, SU / [n,n]
-int parse_ooo(char *input, HPGLInstruction *instr); //FT : [(n,(n, n?)?)?]
-int parse_oooo(char *input, HPGLInstruction *instr); //IP, IW, SC, //[(n,n,n,n)?]
-int parse_k2n(char *input, HPGLInstruction *instr); //PA, PR : [(n,n)+]
-int parse_k2o(char *input, HPGLInstruction *instr); //PD, PU : [(n,n)*]
 
 #endif
+
+/*
+int untangleStr(HPGLArgument *li, char *buf, char delim, int maxlen){
+	int i = 0;
+	while(i < maxlen - 1 && li[i].c != delim){
+		buf[i] = li[i].c;
+		i++;
+	}
+	buf[i] = '\0';
+	return i;
+}
+*/

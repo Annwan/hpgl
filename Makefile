@@ -8,7 +8,7 @@ ifdef RELEASE
 CCFLAGS=$(__FLAGS) -O2
 else
 CCFLAGS=$(__FLAGS) -Og -g -DDEBUG
-# DEBUG is a preproc macro used my the loging module
+# DEBUG is a preproc macro used my the `log' module
 endif
 COMPFLAG=-c
 OUT=-o
