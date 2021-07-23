@@ -63,8 +63,7 @@ HPGLOpcode;
 
 typedef union HPGLArgument
 {
-	int n;
-	float f;
+	float n;
 	char c;
 }
 HPGLArgument;
