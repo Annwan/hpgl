@@ -10,7 +10,10 @@ typedef struct ParserContext
 	char delim;
 } ParserContext;
 
-int parse_t(ParserContext *ctx){
+static HPGLInstruction *allocProgram(int instc, HPGLInstruction* current){
+	return realloc(current, instc *  sizeof(HPGLInstruction));
+}
+static int parse_t(ParserContext *ctx){
 	HPGLInstruction current;
 	current.cmd = ctx->op;
 	current.argc = 0;
@@ -24,7 +27,7 @@ int parse_t(ParserContext *ctx){
 	ctx->prog[ctx->instc++] = current;
 	return 0;
 }
-int parse_0(ParserContext *ctx){
+static int parse_0(ParserContext *ctx){
 	HPGLInstruction current = {
 		.cmd = ctx->op,
 		.argc = 0
@@ -32,7 +35,7 @@ int parse_0(ParserContext *ctx){
 	ctx->prog[ctx->instc++] = current;
 	return 0;
 }
-int parse_4(ParserContext *ctx){
+static int parse_4(ParserContext *ctx){
 	HPGLInstruction current;
 	current.cmd = ctx->op;
 	
@@ -46,18 +49,18 @@ int parse_4(ParserContext *ctx){
 	ctx->prog[ctx->instc++] = current;
 	return 0;
 }
-int parse_n(ParserContext *ctx){
+static int parse_n(ParserContext *ctx){
 	HPGLInstruction current;
 	current.cmd = ctx->op;
-	int read;
 	HPGLArgument a;
-	while (sscanf(ctx->input, "%f,", &(a.n)) > 0 && current.argc < 256){
+	while (sscanf(ctx->input, "%f", &(a.n)) > 0 && current.argc < 256){
 		current.args[current.argc++] = a;
+		while(*(ctx->input++) != ',');
 	}
 	ctx->prog[ctx->instc++] = current;
 	return 0;
 }
-int parse_c(ParserContext *ctx){
+static int parse_c(ParserContext *ctx){
 	HPGLInstruction current;
 	current.cmd = ctx->op;
 	current.argc = 1;
@@ -69,7 +72,7 @@ int parse_c(ParserContext *ctx){
 	return 0;
 }
 
-struct {
+static const struct {
 	char cmd[2];
 	HPGLOpcode op;
 	int (*parser)(ParserContext*);
@@ -128,5 +131,69 @@ struct {
 
 int HPGLParse(char *input, HPGLInstruction **prog)
 {
-	return 0;
+	// Initialize the context
+	ParserContext ctx = {
+		.input = NULL,
+		.instc=0,
+		.maxinstc=32,
+		.prog = NULL,
+		.delim = '\3'
+	};
+	// Allocate some memory for the program
+	ctx.prog = allocProgram(ctx.maxinstc, NULL);
+	char curcmd[1024] = "";
+	// Main loop
+	while(*input){
+		// Read the command
+		char cmd[2] = {*input, *(input+1)};
+		input+=2;
+		int min = 0;
+		int max = 50;
+		int curind;
+		do {
+			if (min == max) {
+				log_error("hpgl:HPGLParse: unknown command, aborting");
+				abort();
+			}
+			curind = (min + max) / 2;
+			if (cmd[0] < jumpTable[curind].cmd[0]) {
+				max = curind;
+			} else if (cmd[0] > jumpTable[curind].cmd[0])
+			{
+				min = curind;
+			} else {
+				if (cmd[1] < jumpTable[curind].cmd[1])
+				{
+					max = curind;
+				}
+				else
+				{
+					min = curind;
+				}
+			}
+		} while(jumpTable[curind].cmd[0] != cmd[0] || jumpTable[curind].cmd[1] != cmd[1]);
+		int index = curind;
+
+		int len = 0;
+		while (*input != ';'){
+			if (len < 1023){
+				curcmd[len++]=*(input++);
+			}
+		}
+
+		curcmd[len] = '\0';
+		input++; //skip the `;'
+				
+		ctx.input = curcmd;
+		ctx.op = jumpTable[index].op;
+		(jumpTable[index].parser)(&ctx);
+
+		if (ctx.instc == ctx.maxinstc) {
+			ctx.maxinstc *= 2;
+			ctx.prog = allocProgram(ctx.maxinstc, ctx.prog);
+		}
+	}
+
+	*prog = ctx.prog;
+	return ctx.instc;
 }

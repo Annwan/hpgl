@@ -78,17 +78,4 @@ HPGLInstruction;
 
 int HPGLParse(char *input, HPGLInstruction **prog);
 
-
 #endif
-
-/*
-int untangleStr(HPGLArgument *li, char *buf, char delim, int maxlen){
-	int i = 0;
-	while(i < maxlen - 1 && li[i].c != delim){
-		buf[i] = li[i].c;
-		i++;
-	}
-	buf[i] = '\0';
-	return i;
-}
-*/
