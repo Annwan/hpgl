@@ -1,7 +1,5 @@
 #include "graphics.h"
 
-#include <windows.h>
-
 void PaintWindow(HWND window) {
     PAINTSTRUCT ps;
     HDC hdc = BeginPaint(window, &ps);

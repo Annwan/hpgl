@@ -1,5 +1,5 @@
-#ifndef __HPGL_H__
-#define __HPGL_H__
+#if !defined(__HPGL__PARSE_H__)
+#define __HPGL__PARSE_H__
 
 #include "log.h"
 
@@ -78,4 +78,6 @@ HPGLInstruction;
 
 int HPGLParse(char *input, HPGLInstruction **prog);
 
-#endif
+#endif // __HPGL__PARSE_H__
+
+

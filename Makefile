@@ -17,7 +17,7 @@ OUT=-o
 LIBS=
 
 ### sources
-SRC=$(patsubst %,src/%.c,main graphics hpgl log)
+SRC=$(patsubst %,src/%.c,main graphics hpglparse hpglrun log)
 OBJ=$(patsubst src/%.c,build/%.o,$(SRC))
 
 ### executable name
@@ -40,7 +40,8 @@ $(EXEC): $(OBJ)
 build/%.o: src/%.c
 	$(CC) $(CCFLAGS) $(COMPFLAG) $< $(OUT) $@
 
-build/main.o build/graphics.o build/hpgl.o build/log.o: src/log.h
+build/main.o build/graphics.o build/hpglparse.o build/log.o: src/log.h
 build/main.o build/graphics.o: src/graphics.h
-build/hpgl.o: src/hpgl.h
+build/hpglparse.o build/hpglrun.o: src/hpglparse.h
+build/hpglrun.o: src/hpglrun.h
 

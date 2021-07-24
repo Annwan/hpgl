@@ -1,4 +1,4 @@
-#include "hpgl.h"
+#include "hpglparse.h"
 
 typedef struct ParserContext
 {
