@@ -1,9 +1,9 @@
 ### programs
-CC=i686-w64-mingw32-gcc
+CC=gcc
 RM=rm -rf
 
 ### flags
-__FLAGS=-march=i386 -std=c99 -Wall -Werror
+__FLAGS=-std=c99 -Wall -Werror
 ifdef RELEASE
 CCFLAGS=$(__FLAGS) -O2
 else
@@ -21,7 +21,7 @@ SRC=$(patsubst %,src/%.c,main graphics hpglparse hpglrun log)
 OBJ=$(patsubst src/%.c,build/%.o,$(SRC))
 
 ### executable name
-EXEC=build/main.exe
+EXEC=build/main
 
 ### "command" targets
 .PHONY: build run clean mrproper
